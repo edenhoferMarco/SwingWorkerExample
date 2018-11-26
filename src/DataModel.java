@@ -1,15 +1,35 @@
+import javax.swing.event.SwingPropertyChangeSupport;
+import java.beans.PropertyChangeListener;
+
 public class DataModel {
-    private int workload;
+    public static final String COMPLETE_WORKLOAD_ID = "COMPLETE_WORKLOAD";
 
-    public DataModel(int workload) {
-        setWorkload(workload);
+    private int fullWorkload;
+    private int finishedWorkload = 0;
+    private SwingPropertyChangeSupport propertyChangeNotifier;
+
+    public DataModel(int fullWorkload) {
+        propertyChangeNotifier = new SwingPropertyChangeSupport(this);
+        this.fullWorkload = fullWorkload;
     }
 
-    public void setWorkload(int workload) {
-        this.workload = workload;
+    public void addPropertyChangeListener(PropertyChangeListener propertyChangeListener) {
+        propertyChangeNotifier.addPropertyChangeListener(propertyChangeListener);
     }
 
-    public int getWorkload() {
-        return workload;
+
+    public void setFinishedWorkload(int finishedWorkload) {
+        int oldVal = this.finishedWorkload;
+
+        this.finishedWorkload = finishedWorkload;
+        propertyChangeNotifier.firePropertyChange(COMPLETE_WORKLOAD_ID, oldVal, this.finishedWorkload);
+    }
+
+    public int getFinishedWorkload() {
+        return finishedWorkload;
+    }
+
+    public int getFullWorkload() {
+        return fullWorkload;
     }
 }

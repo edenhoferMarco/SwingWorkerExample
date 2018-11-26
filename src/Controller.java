@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.awt.event.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class Controller {
     private View view;
@@ -15,23 +17,46 @@ public class Controller {
         view.addWindowListener(new WindowCloseListener());
 
         progressBar = this.view.getProgressBar();
-        progressBar.setMaximum(model.getWorkload());
+        progressBar.setMaximum(model.getFullWorkload());
         progressBar.setValue(0);
+
         this.view.getStartButton().addActionListener(new StartListener());
+        this.model.addPropertyChangeListener(new PropertyChangeHandler());
     }
 
     private class StartListener implements ActionListener {
+
         @Override
         public void actionPerformed(ActionEvent e) {
             view.getStartButton().setEnabled(false);
-            workerThread = new WorkerThread(model.getWorkload(), view.getProgressBar(), view.getStartButton());
+            view.getProgressBar().setValue(0);
+            workerThread = new WorkerThread(model);
             workerThread.execute();
         }
 
 
     }
 
+    private class PropertyChangeHandler implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            switch (evt.getPropertyName()) {
+                case DataModel.COMPLETE_WORKLOAD_ID:
+                    view.getProgressBar().setValue((int) evt.getNewValue());
+                    if (model.getFullWorkload() - model.getFinishedWorkload() == 0) {
+                        view.getStartButton().setEnabled(true);
+                        workerThread = null;
+                    }
+                    break;
+                default:
+                    System.out.println("Undefined property changed");
+            }
+        }
+    }
+
     private class WindowCloseListener extends WindowAdapter implements WindowListener {
+
         @Override
         public void windowClosing(WindowEvent e) {
             if (workerThread != null && !workerThread.isDone()) {

@@ -2,30 +2,32 @@ import javax.swing.*;
 import java.util.List;
 
 public class WorkerThread extends SwingWorker<Void, Integer> {
-    private int workLoad;
-    private int workLoadMax;
-    private JProgressBar progressBar;
-    private JButton startButton;
+    private DataModel model;
+    private int finishedWorkLoad;
+    private int fullWorkload;
     private boolean computationDone = false;
 
-    public WorkerThread(int workLoad, JProgressBar progressBar, JButton startButton) {
-        this.workLoad = workLoad;
-        this.workLoadMax = workLoad;
-        this.progressBar = progressBar;
-        this.startButton = startButton;
+    public WorkerThread(DataModel model) {
+        this.model = model;
+        this.fullWorkload = model.getFullWorkload();
+        this.finishedWorkLoad = 0;
+
+    }
+
+    public boolean computationIsDone() {
+        return computationDone;
     }
 
     @Override
     protected Void doInBackground() throws Exception {
-        while (!isCancelled() && workLoad > 0) {
-            workLoad--;
+        while (!isCancelled() && finishedWorkLoad < fullWorkload) {
+            finishedWorkLoad++;
             Thread.sleep(1000);
-            publish(workLoad);
+            publish(finishedWorkLoad);
         }
 
-        if (workLoad == 0) {
+        if (fullWorkload - finishedWorkLoad == 0) {
             System.out.println("Worker done!");
-            startButton.setEnabled(true);
         }
         computationDone = true;
         return null;
@@ -33,11 +35,9 @@ public class WorkerThread extends SwingWorker<Void, Integer> {
 
     @Override
     protected void process(List<Integer> chunks) {
-        int currentWorkload = chunks.get(chunks.size() - 1);
-        progressBar.setValue(workLoadMax - currentWorkload);
+        int currentlyFinishedWorkload = chunks.get(chunks.size() - 1);
+        model.setFinishedWorkload(currentlyFinishedWorkload);
     }
 
-    public boolean computationIsDone() {
-        return computationDone;
-    }
+
 }
