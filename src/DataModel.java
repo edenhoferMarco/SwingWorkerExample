@@ -17,11 +17,11 @@ public class DataModel {
         propertyChangeNotifier.addPropertyChangeListener(propertyChangeListener);
     }
 
-
     public void setFinishedWorkload(int finishedWorkload) {
         int oldVal = this.finishedWorkload;
 
         this.finishedWorkload = finishedWorkload;
+        // notify the PropertyChangeListener.
         propertyChangeNotifier.firePropertyChange(COMPLETE_WORKLOAD_ID, oldVal, this.finishedWorkload);
     }
 

@@ -33,13 +33,12 @@ public class Controller {
             workerThread = new WorkerThread(model);
             workerThread.execute();
         }
-
-
     }
 
     private class PropertyChangeHandler implements PropertyChangeListener {
 
         @Override
+        // is called each time the DataModel calls the firePropertyChange() method.
         public void propertyChange(PropertyChangeEvent evt) {
             switch (evt.getPropertyName()) {
                 case DataModel.COMPLETE_WORKLOAD_ID:
@@ -58,6 +57,7 @@ public class Controller {
     private class WindowCloseListener extends WindowAdapter implements WindowListener {
 
         @Override
+        // is called if the user clicks on the close button.
         public void windowClosing(WindowEvent e) {
             if (workerThread != null && !workerThread.isDone()) {
                 workerThread.cancel(false);
